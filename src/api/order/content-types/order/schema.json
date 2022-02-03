@@ -4,23 +4,24 @@
   "info": {
     "singularName": "order",
     "pluralName": "orders",
-    "displayName": "Order"
+    "displayName": "Order",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
-    "Address": {
+    "address": {
       "type": "string"
     },
-    "Cidade": {
+    "city": {
       "type": "string"
     },
-    "Produtos": {
+    "products": {
       "type": "json"
     },
-    "Quantidade": {
+    "quantity": {
       "type": "biginteger"
     }
   }
