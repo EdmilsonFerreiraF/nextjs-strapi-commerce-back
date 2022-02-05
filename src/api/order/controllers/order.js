@@ -21,5 +21,15 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     const customer = await stripe.customers.create({
       description: 'My First Test Customer',
     });
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      customer: customer.id,
+      currency: 'usd',
+      amount: 2000,
+      payment_method_types: ['card'],
+      setup_future_usage: 'on_session',
+    });
+
+    return { clientSecret: paymentIntent.client_secret }
   }
 }))
