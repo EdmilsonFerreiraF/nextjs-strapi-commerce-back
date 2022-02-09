@@ -16,8 +16,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
    *
    * @return {Object}
    */
-
-  create: async (ctx) => {
+  stripe: async (ctx) => {
     const customer = await stripe.customers.create({
       description: 'My First Test Customer',
     });
@@ -31,5 +30,12 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     });
 
     return { clientSecret: paymentIntent.client_secret }
-  }
+  },
+  pagseguro: async (ctx) => {
+    try {
+      ctx.body = 'ok';
+    } catch (err) {
+      ctx.body = err;
+    }
+  },
 }))
