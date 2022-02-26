@@ -16,6 +16,11 @@ module.exports = {
             path: '/orders/pagseguro', // Only match when the first parameter contains 2 or 3 digits.
             handler: 'order.createPagSeguro',
         },
+        { // Path defined with a regular expression
+            method: 'POST',
+            path: '/orders/pagseguropix', // Only match when the first parameter contains 2 or 3 digits.
+            handler: 'order.createPagSeguroPIX',
+        },
         { // Path defined with a URL parameter
             method: 'GET',
             path: '/orders',
