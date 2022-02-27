@@ -58,26 +58,14 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
         const token = "5D3179F168F94D11B1C9834A3C154139"
 
         try {
-            const clientID = "22379b1c-90bb-11ec-b909-0242ac120002"
-            const clientSecret = "22379d1a-90bb-11ec-b909-0242ac120002"
+            const clientID = process.env.CLIENT_ID
+            const clientSecret = process.env.CLIENT_SECRET
             const credential = Buffer.from(`${clientID}:${clientSecret}`).toString('base64')
 
-            const options = {
-                headers: {
-                    Accept: 'application/json',
-                    // Username: '22379b1c-90bb-11ec-b909-0242ac120002',
-                    // Password: '22379d1a-90bb-11ec-b909-0242ac120002',
-                    Authorization: `Username: Client_ID Password: Client_Secret`,
-                    'Content-Type': 'application/json'
-                }
-            };
-            const authOptions = {
-                grant_type: 'client_credentials', scope: 'cob.write'
-
-            }
             const clientId2 = fs.readFileSync(
                 "certs/Futura_Sand.key"
             )
+
             const clientSecret2 = fs.readFileSync(
                 "certs/Futura_Sand.pem"
             )
@@ -88,44 +76,32 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                 passphrase: ''
             })
 
-            const resAuth = await axios.post("https://secure.sandbox.api.pagseguro.com/pix/oauth2", {
-                grant_type: "client_credentials",
-                scope: "cob.read pix.read pix.write"
-            },
-                {
-                    httpsAgent: agent,
+            const chargeOptions = {
+                httpsAgent: agent,
+                headers: {
+                    Authorization: `Basic ${credential}`
+                }
+            };
 
-                    headers: {
-                        Authorization: `Basic ${credential}`
-                    }
-                },
+            const authBody = {
+                grant_type: 'client_credentials', scope: 'cob.write'
+            }
+
+            const chargeBody = ctx.request.body
+
+            const resAuth = await axios.post("https://secure.sandbox.api.pagseguro.com/pix/oauth2",
+                authBody,
+                authOptions,
             )
-                .then(result => {console.log('result', result); return result.data.access_token})
+                .then(result => { console.log('result', result); return result.data.access_token })
                 .catch(error => console.log('error', error.response ? error.response.data.error_messages : error));
 
-            console.log('resAuth', resAuth)
-
-            const res = await axios.post(`https://sandbox.api.pagseguro.com/instant-payments/cob/${devedor.cpf}`,
-                {
-                    ...ctx.request.body,
-                    grant_type: "client_credentials",
-                    scope: "cob.read pix.read pix.write"
-                },
-                {
-                    httpsAgent: agent,
-                    headers: {
-                        Authorization: `Bearer ${resAuth}`,
-                        'Content-Type': 'application/json'
-                    },
-                },
+            const res = await axios.put(`https://secure.sandbox.api.pagseguro.com/instant-payments/cob/123BAJDH1JASHjvkae123kejauuj746`,
+                chargeBody,
+                chargeOptions
             )
-                .then(res => {
-                    console.log('res', res)
-                    return res
-                })
-                .catch(err => console.log('err', err))
-
-            console.log('res', res)
+                .then(result => { console.log('result', result); return result })
+                .catch(error => console.log('error', error.response ? error.response.data.error_messages : error));
         } catch (err) {
             console.log('err', err)
             ctx.body = err;
@@ -140,16 +116,12 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
             // qr_code,
             shipping,
             charges,
-            notification_urls,
+            notification_urls
         } = ctx.request.body
 
-        console.log('ctx.request.body', ctx.request.body)
-        console.log('ctx.body', ctx.body)
-        const token = "5D3179F168F94D11B1C9834A3C154139"
-
         try {
-
-            const res = await axios.post('https://sandbox.api.pagseguro.com/orders',
+            console.log('ctx.body', ctx.body)
+            const res = await axios.put('sandbox.api.pagseguro.com/orders',
                 ctx.request.body,
 
                 // {
@@ -229,7 +201,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                },
+                }
             )
                 .then(res => {
                     console.log('res', res)

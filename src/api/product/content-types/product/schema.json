@@ -40,6 +40,9 @@
     "slug": {
       "type": "uid",
       "required": true
+    },
+    "price": {
+      "type": "decimal"
     }
   }
 }
