@@ -13,6 +13,7 @@ const Base64 = require('js-base64');
 const fs = require('fs')
 const path = require('path')
 const https = require('https')
+
 module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     /**
      * Create a/an order record.
@@ -80,20 +81,20 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
             infoAdicionais
         } = ctx.request.body
 
-        const token = "5D3179F168F94D11B1C9834A3C154139"
+        const token = process.env.PIX_TOKEN
 
         try {
-            const clientId2 = fs.readFileSync(
+            const clientId = fs.readFileSync(
                 "certs/Futura_Sand.key"
             )
 
-            const clientSecret2 = fs.readFileSync(
+            const clientSecret = fs.readFileSync(
                 "certs/Futura_Sand.pem"
             )
 
             const agent = new https.Agent({
-                key: clientId2,
-                cert: clientSecret2,
+                key: clientId,
+                cert: clientSecret,
                 passphrase: ''
             })
 
@@ -121,7 +122,11 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
             ctx.body = err;
         }
     },
+    // find: async (ctx) => {
+    //     const { data, meta } = await super.find(ctx);
 
+    //     return { data, meta };
+    // },
     createPagSeguro: async (ctx) => {
         const {
             // reference_id,
@@ -134,82 +139,8 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
         } = ctx.request.body
 
         try {
-            console.log('ctx.body', ctx.body)
             const res = await axios.put('sandbox.api.pagseguro.com/orders',
                 ctx.request.body,
-
-                // {
-                //     // "reference_id": this.name,
-                //     "customer": {
-                //         "name": customer.name,
-                //         "email": customer.email,
-                //         "tax_id": customer.taxId,
-                //         "phones": [
-                //             {
-                //                 "country": customer.phones.country,
-                //                 "area": customer.phones.area,
-                //                 "number": customer.phones.number,
-                //                 "type": customer.phones.type,
-                //             }
-                //         ]
-                //     },
-                //     "items": [
-                //         {
-                //             "reference_id": items.reference_id,
-                //             "name": items.name,
-                //             "quantity": items.quantity,
-                //             "unit_amount": items.unit_amount,
-                //         }
-                //     ],
-                //     // "qr_code": {
-                //     //     "amount": {
-                //     //         "value": this.name,
-                //     //     }
-                //     // },
-                //     "shipping": {
-                //         "address": {
-                //             "street": shipping.address.street,
-                //             "number": shipping.address.number,
-                //             "complement": shipping.address.complement,
-                //             "locality": shipping.address.locality,
-                //             "city": shipping.address.city,
-                //             "region_code": shipping.address.region_code,
-                //             "country": shipping.address.country,
-                //             "postal_code": shipping.address.postal_code,
-                //         }
-                //     },
-                //     "notification_urls": [
-                //         notification_urls
-                //     ],
-                //     "charges": [
-                //         {
-                //             // "reference_id": charges.reference_id,
-                //             "description": charges.description,
-                //             "amount": {
-                //                 "value": charges.amount.value,
-                //                 "currency": charges.amount.currency,
-                //             },
-                //             "payment_method": {
-                //                 "type": charges.payment_method.type,
-                //                 "installments": charges.payment_method.installments,
-                //                 "capture": charges.payment_method.capture,
-                //                 "card": {
-                //                     "number": charges.payment_method.card.number,
-                //                     "exp_month": charges.payment_method.card.exp_month,
-                //                     "exp_year": charges.payment_method.card.exp_year,
-                //                     "security_code": charges.payment_method.card.security_code,
-                //                     "holder": {
-                //                         "name": charges.payment_method.card.holder.name,
-                //                     },
-                //                     "store": charges.payment_method.card.store,
-                //                 }
-                //             },
-                //             "notification_urls": [
-                //                 charges.notification_urls
-                //             ]
-                //         }
-                //     ]
-                // },
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -219,13 +150,13 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
             )
                 .then(res => {
                     console.log('res', res)
+
                     return res
                 })
                 .catch(err => console.log('err', err.response.data.error_messages))
 
-            console.log('res', res)
+            return res
         } catch (err) {
-            console.log('err', err)
             ctx.body = err;
         }
     },
